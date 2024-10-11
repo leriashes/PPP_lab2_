@@ -15,19 +15,36 @@ int main()
     SetConsoleCP(1251);
     msclr::interop::marshal_context context;
 
-    string path = "1.jpg";
+    string path = "bad.jpg";
 
     //cin >> path;
 
     String^ filePath = gcnew String(path.c_str());
+    Bitmap^ img, ^bordered, ^result;
 
     try {
-        Bitmap^ img = gcnew Bitmap(filePath);
+        img = gcnew Bitmap(filePath);
         cout << "Изображение загружено успешно!";
     }
     catch (Exception^ ex) {
         cout << "Ошибка: " << context.marshal_as<string>(ex->Message);
     }
+
+    result = gcnew Bitmap(img);
+
+    int apert = 2;
+    
+    int n = 2 * apert + 1;
+    int len = n * n;
+
+    double* kernel = new double[len];
+
+    bordered = MakeImgWithBordersCopy(img, apert);
+
+    CountKernelGauss(kernel, apert);
+    GaussFilter(bordered, 0, img->Height - 1, result, kernel);
+
+    result->Save("result.jpg");
 
     return 0;
 }
