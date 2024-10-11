@@ -42,9 +42,16 @@ int main()
     bordered = MakeImgWithBordersCopy(img, apert);
 
     CountKernelGauss(kernel, apert);
-    GaussFilter(bordered, 0, img->Height - 1, result, kernel);
+
+    GaussFilter(bordered, 0, img->Height - 1, result, kernel, apert);
+
+    bordered = MakeImgWithBordersCopy(result, apert);
+
+    MedianFilter(bordered, 0, img->Height - 1, result, apert);
 
     result->Save("result.jpg");
+
+    delete[] kernel;
 
     return 0;
 }

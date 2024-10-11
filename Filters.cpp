@@ -1,6 +1,9 @@
 #include "Filters.h"
 #include "pch.h"
 #include <math.h>
+#include <vector>
+#include <algorithm>
+using namespace std;
 using namespace System::Drawing;
 
 int NormalizeColor(int color)
@@ -93,9 +96,8 @@ void CountKernelGauss(double* kernel, int apert)
 }
 
 
-void GaussFilter(Bitmap^ img, int startRow, int endRow, Bitmap^ result, double* kernel)
+void GaussFilter(Bitmap^ img, int startRow, int endRow, Bitmap^ result, double* kernel, int apert)
 {
-    int apert = 2;
     int n = apert * 2 + 1;
 
     for (int i = 0; i < result->Width; i++)
@@ -118,15 +120,46 @@ void GaussFilter(Bitmap^ img, int startRow, int endRow, Bitmap^ result, double* 
                 }
             }
 
-            result->SetPixel(i, j, Color::FromArgb(img->GetPixel(i, j).A, NormalizeColor(int(round(R))), NormalizeColor(int(round(G))), NormalizeColor(int(round(B)))));
+            result->SetPixel(i, j, Color::FromArgb(result->GetPixel(i, j).A, NormalizeColor(int(round(R))), NormalizeColor(int(round(G))), NormalizeColor(int(round(B)))));
         }
     }
 }
 
-void MedianFilter()
+
+void MedianFilter(Bitmap^ img, int startRow, int endRow, Bitmap^ result, int apert)
 {
-	;
+    int n = apert * 2 + 1;
+    int size = n * n;
+
+    for (int i = 0; i < result->Width; i++)
+    {
+        for (int j = 0; j < result->Height; j++)
+        {
+            vector<int> rmas(size, 0);
+            vector<int> gmas(size, 0);
+            vector<int> bmas(size, 0);
+
+            for (int k = 0; k < n; k++)
+            {
+                for (int l = 0; l < n; l++)
+                {
+                    Color pixel = img->GetPixel(i + l, j + k);
+
+                    rmas[k * n + l] = pixel.R;
+                    gmas[k * n + l] = pixel.G;
+                    bmas[k * n + l] = pixel.B;
+                }
+            }
+
+            sort(rmas.begin(), rmas.end());
+            sort(gmas.begin(), gmas.end());
+            sort(bmas.begin(), bmas.end());
+
+            result->SetPixel(i, j, Color::FromArgb(result->GetPixel(i, j).A, rmas[apert], gmas[apert], bmas[apert]));
+        }
+    }
 }
+
 
 void SobelFilter()
 {
