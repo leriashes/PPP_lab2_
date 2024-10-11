@@ -2,8 +2,9 @@
 using namespace System::Drawing;
 
 int NormalizeColor(int color);
+Bitmap^ MakeGrey(Bitmap^ colored);
 Bitmap^ MakeImgWithBordersCopy(Bitmap^ img, int apert);
 void CountKernelGauss(double* kernel, int apert);
 void GaussFilter(Bitmap^ img, int startRow, int endRow, Bitmap^ result, double* kernel, int apert);
 void MedianFilter(Bitmap^ img, int startRow, int endRow, Bitmap^ result, int apert);
-void SobelFilter();
+void SobelFilter(Bitmap^ img, int startRow, int endRow, Bitmap^ result, int alpha);

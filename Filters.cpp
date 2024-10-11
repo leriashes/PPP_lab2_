@@ -20,6 +20,25 @@ int NormalizeColor(int color)
     return color;
 }
 
+Bitmap^ MakeGrey(Bitmap^ colored)
+{
+    Bitmap^ img = gcnew Bitmap(colored);
+
+    for (int i = 0; i < img->Width; i++)
+    {
+        for (int j = 0; j < img->Height; j++)
+        {
+            Color pixel = colored->GetPixel(i, j);
+
+            int brightness = NormalizeColor(int(round(0.299 * pixel.R + 0.587 * pixel.G + 0.114 * pixel.B)));
+
+            img->SetPixel(i, j, Color::FromArgb(pixel.A, brightness, brightness, brightness));
+        }
+    }
+
+    return img;
+}
+
 Bitmap^ MakeImgWithBordersCopy(Bitmap^ img, int apert)
 {
     Bitmap^ res = gcnew Bitmap(img->Width + apert * 2, img->Height + apert * 2);
@@ -133,7 +152,7 @@ void MedianFilter(Bitmap^ img, int startRow, int endRow, Bitmap^ result, int ape
 
     for (int i = 0; i < result->Width; i++)
     {
-        for (int j = 0; j < result->Height; j++)
+        for (int j = startRow; j <= endRow; j++)
         {
             vector<int> rmas(size, 0);
             vector<int> gmas(size, 0);
@@ -161,7 +180,40 @@ void MedianFilter(Bitmap^ img, int startRow, int endRow, Bitmap^ result, int ape
 }
 
 
-void SobelFilter()
+void SobelFilter(Bitmap^ img, int startRow, int endRow, Bitmap^ result, int alpha)
 {
-	;
+    int n = 3;
+
+    int* matrix = new int[9] { -1, -2, -1, 0, 0, 0, 1, 2, 1};
+
+    for (int i = 0; i < result->Width; i++)
+    {
+        for (int j = startRow; j <= endRow; j++)
+        {
+            int Y = 0;
+
+            for (int k = 0; k < n; k++)
+            {
+                for (int l = 0; l < n; l++)
+                {
+                    Color pixel = img->GetPixel(i + l, j + k);
+
+                    Y += pixel.R * (matrix[k * n + l] + matrix[l * n + k]);
+                }
+            }
+
+            Y = NormalizeColor(Y);
+
+            if (Y > alpha)
+            {
+                Y = 255;
+            }
+            else
+            {
+                Y = 0;
+            }
+
+            result->SetPixel(i, j, Color::FromArgb(result->GetPixel(i, j).A, Y, Y, Y));
+        }
+    }
 }

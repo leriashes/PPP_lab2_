@@ -33,6 +33,7 @@ int main()
     result = gcnew Bitmap(img);
 
     int apert = 2;
+    int alpha = 100;
     
     int n = 2 * apert + 1;
     int len = n * n;
@@ -48,6 +49,10 @@ int main()
     bordered = MakeImgWithBordersCopy(result, apert);
 
     MedianFilter(bordered, 0, img->Height - 1, result, apert);
+
+    bordered = MakeGrey(MakeImgWithBordersCopy(result, 1));
+
+    SobelFilter(bordered, 0, img->Height - 1, result, alpha);
 
     result->Save("result.jpg");
 
